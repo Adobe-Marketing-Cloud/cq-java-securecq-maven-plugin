@@ -58,7 +58,7 @@ and <tt>redundant-selectors</tt> by default.<br></td>
 
 <pre>
 [INFO] ------------------------------------------------------------------------
-[INFO] Building Cognifide's SecureCQ Maven plugin 0.0.1-SNAPSHOT
+[INFO] Building Cognifide's SecureCQ Maven plugin 0.0.1
 [INFO] ------------------------------------------------------------------------
 [INFO] 
 [INFO] --- securecq-maven-plugin:0.0.1-SNAPSHOT:securecq (default-cli) @ securecq-maven-plugin ---
