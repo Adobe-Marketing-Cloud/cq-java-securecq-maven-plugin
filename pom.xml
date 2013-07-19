@@ -25,7 +25,7 @@
 
     <groupId>com.adobe.granite.maven</groupId>
     <artifactId>securecq-maven-plugin</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>Cognifide's SecureCQ Apache Maven plugin</name>
