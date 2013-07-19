@@ -52,7 +52,7 @@ and <tt>redundant-selectors</tt> by default.<br></td>
 
  * Perform the tests
  
-    <pre>mvn com.adobe.granite.maven:securecq-maven-plugin:0.0.1-SNAPSHOT:securecq [-Dscq.url.author=http://${host}:${port} -Dscq.url.publish=http://${host}:${port} -Dscq.url.dispatcher=http://${host}:${port}]</pre>
+    <pre>mvn com.adobe.granite.maven:securecq-maven-plugin:0.0.1:securecq [-Dscq.url.author=http://${host}:${port} -Dscq.url.publish=http://${host}:${port} -Dscq.url.dispatcher=http://${host}:${port}]</pre>
 
    It will produce an output like the following one:
 
