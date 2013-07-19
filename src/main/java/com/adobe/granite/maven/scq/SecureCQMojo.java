@@ -40,6 +40,7 @@ import com.cognifide.securecq.markers.AuthorTest;
 import com.cognifide.securecq.markers.DispatcherTest;
 import com.cognifide.securecq.markers.PublishTest;
 import com.google.inject.Binding;
+import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -112,9 +113,11 @@ public final class SecureCQMojo extends AbstractMojo {
         boolean success = true;
 
         for (String enabledTest : enabledTests) {
-            AbstractTest test = injector.getInstance(get(AbstractTest.class, named(enabledTest)));
+            getLog().info("Discovering test '" + enabledTest + "'...");
 
-            if (test != null) {
+            try {
+                AbstractTest test = injector.getInstance(get(AbstractTest.class, named(enabledTest)));
+
                 getLog().info("Performing security check '" + enabledTest + "'...");
 
                 // configuration exists at that point
@@ -122,7 +125,7 @@ public final class SecureCQMojo extends AbstractMojo {
 
                 // putting the `success` flag BEFORE, if false, doesn't evaluate the test!
                 success = performTest(enabledTest, test, configuration) && success;
-            } else {
+            } catch (ConfigurationException e) {
                 getLog().warn("Test '" + enabledTest + "' does not exist in this context, ignored it.");
             }
         }
