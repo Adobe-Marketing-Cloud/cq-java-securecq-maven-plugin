@@ -15,6 +15,6 @@
  */
 
 /**
- *
+ * SecureCQ plugin for Apache Maven.
  */
 package com.adobe.granite.maven.scq;
