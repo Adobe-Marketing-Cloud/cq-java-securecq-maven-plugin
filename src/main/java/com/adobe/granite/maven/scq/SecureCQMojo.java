@@ -15,13 +15,15 @@
  */
 package com.adobe.granite.maven.scq;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import static java.util.Arrays.asList;
+import static com.google.inject.Guice.createInjector;
+import static com.google.inject.Key.get;
+import static com.google.inject.name.Names.named;
 
-import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,21 +31,19 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.xml.sax.SAXException;
 
+import com.adobe.granite.maven.scq.di.SecureCQComponentsModule;
 import com.cognifide.securecq.AbstractTest;
 import com.cognifide.securecq.Configuration;
 import com.cognifide.securecq.TestResult;
-import com.cognifide.securecq.cli.XmlConfigurationReader;
 import com.cognifide.securecq.markers.AuthorTest;
 import com.cognifide.securecq.markers.DispatcherTest;
 import com.cognifide.securecq.markers.PublishTest;
-import com.cognifide.securecq.tests.ConfigValidation;
-import com.cognifide.securecq.tests.DefaultPasswordsTest;
-import com.cognifide.securecq.tests.ExtensionsTest;
-import com.cognifide.securecq.tests.PageContentTest;
-import com.cognifide.securecq.tests.WcmDebugTest;
-import com.cognifide.securecq.tests.WebDavTest;
+import com.google.inject.Binding;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 
 /**
  * Performs the SecureCQ test analysis.
@@ -82,36 +82,46 @@ public final class SecureCQMojo extends AbstractMojo {
     @Parameter
     private String[] enabledTests;
 
-    private final Map<String, Class<? extends AbstractTest>> testsRegistry = new LinkedHashMap<String, Class<? extends AbstractTest>>();
-
-    public SecureCQMojo() {
-        testsRegistry.put("config-validation", ConfigValidation.class);
-        testsRegistry.put("default-passwords", DefaultPasswordsTest.class);
-        testsRegistry.put("dispatcher-access", PageContentTest.class);
-        testsRegistry.put("shindig-proxy", PageContentTest.class);
-        testsRegistry.put("etc-tools", PageContentTest.class);
-        testsRegistry.put("content-grabbing", ExtensionsTest.class);
-        testsRegistry.put("feed-selector", ExtensionsTest.class);
-        testsRegistry.put("wcm-debug", WcmDebugTest.class);
-        testsRegistry.put("webdav", WebDavTest.class);
-        testsRegistry.put("geometrixx", PageContentTest.class);
-        testsRegistry.put("redundant-selectors", ExtensionsTest.class);
-
-        // enables all tests by default, let the Mojo override it, if present
-        enabledTests = testsRegistry.keySet().toArray(new String[testsRegistry.size()]);
-    }
-
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // setup tests
+        Injector injector = createInjector(new SecureCQComponentsModule(authorUrl, publishUrl, dispatcherUrl));
+
+        // discover all available predefined tests
+        if (enabledTests == null || enabledTests.length == 0) {
+            List<String> boundTests = new LinkedList<String>();
+
+            TypeLiteral<AbstractTest> abstractTestTypeLiteral = new TypeLiteral<AbstractTest>(){};
+
+            for (Entry<Key<?>, Binding<?>> binding : injector.getAllBindings().entrySet()) {
+                Key<?> bindingKey = binding.getKey();
+
+                if (abstractTestTypeLiteral.equals(bindingKey.getTypeLiteral())
+                        && bindingKey.getAnnotation() != null
+                        && Named.class.isAssignableFrom(bindingKey.getAnnotationType())) {
+                    boundTests.add(((Named) bindingKey.getAnnotation()).value());
+                }
+            }
+
+            enabledTests = boundTests.toArray(new String[boundTests.size()]);
+        }
+
+        getLog().debug("Performing tests: " + asList(enabledTests));
+
+        // perform tests
+
         boolean success = true;
 
         for (String enabledTest : enabledTests) {
-            Class<? extends AbstractTest> abstractTestClass = testsRegistry.get(enabledTest);
+            AbstractTest test = injector.getInstance(get(AbstractTest.class, named(enabledTest)));
 
-            if (abstractTestClass != null) {
+            if (test != null) {
                 getLog().info("Performing security check '" + enabledTest + "'...");
 
+                // configuration exists at that point
+                Configuration configuration = injector.getInstance(get(Configuration.class, named(enabledTest)));
+
                 // putting the `success` flag BEFORE, if false, doesn't evaluate the test!
-                success = performTest(abstractTestClass, enabledTest) && success;
+                success = performTest(enabledTest, test, configuration) && success;
             } else {
                 getLog().warn("Test '" + enabledTest + "' does not exist in this context, ignored it.");
             }
@@ -124,13 +134,8 @@ public final class SecureCQMojo extends AbstractMojo {
         }
     }
 
-    private boolean performTest(Class<? extends AbstractTest> testClass, String componentName) throws MojoExecutionException {
+    private boolean performTest(String componentName, AbstractTest test, Configuration configuration) throws MojoExecutionException {
         try {
-            XmlConfigurationReader xmlConfigReader = new XmlConfigurationReader(componentName);
-            Configuration configuration = new MojoConfiguration(authorUrl, publishUrl, dispatcherUrl, xmlConfigReader);
-
-            AbstractTest test = testClass.getConstructor(Configuration.class).newInstance(configuration);
-
             test.test();
 
             if (TestResult.DISABLED == test.getResult()) {
@@ -170,38 +175,6 @@ public final class SecureCQMojo extends AbstractMojo {
             throw new MojoExecutionException("An error occurred while loading test '"
                                              + componentName
                                              + "' configuration, see nested exceptions", e);
-        } catch (ParserConfigurationException e) {
-            throw new MojoExecutionException("An error occurred while reading test '"
-                    + componentName
-                    + "' configuration, see nested exceptions", e);
-        } catch (SAXException e) {
-            throw new MojoExecutionException("An error occurred while parsing test '"
-                    + componentName
-                    + "' configuration, see nested exceptions", e);
-        } catch (URISyntaxException e) {
-            throw new MojoExecutionException("Impossible to access to test '"
-                    + componentName
-                    + "' configuration, see nested exceptions", e);
-        } catch (SecurityException e) {
-            throw new MojoExecutionException("Impossible to instantiate '"
-                                             + testClass.getName()
-                                             + "' class, see nested exceptions", e);
-        } catch (InstantiationException e) {
-            throw new MojoExecutionException("Impossible to instantiate '"
-                                             + testClass.getName()
-                                             + "' class, see nested exceptions", e);
-        } catch (IllegalAccessException e) {
-            throw new MojoExecutionException("Impossible to instantiate '"
-                                             + testClass.getName()
-                                             + "' class, see nested exceptions", e);
-        } catch (InvocationTargetException e) {
-            throw new MojoExecutionException("Impossible to instantiate '"
-                                             + testClass.getName()
-                                             + "' class, see nested exceptions", e);
-        } catch (NoSuchMethodException e) {
-            throw new MojoExecutionException("Impossible to instantiate '"
-                                             + testClass.getName()
-                                             + "' class, see nested exceptions", e);
         }
     }
 

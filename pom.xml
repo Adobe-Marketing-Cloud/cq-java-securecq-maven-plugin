@@ -45,6 +45,9 @@
     </properties>
 
     <dependencies>
+        <!--
+         | Apache Maven plugins dependencies
+        -->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
@@ -61,10 +64,23 @@
             <version>3.2</version>
             <scope>provided</scope>
         </dependency>
+
+        <!--
+         | SecureCQ core library
+        -->
         <dependency>
             <groupId>com.cognifide.securecq</groupId>
             <artifactId>secure-cq</artifactId>
             <version>1.0.1</version>
+        </dependency>
+
+        <!--
+         | Discover SecureCQ test
+        -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>3.0</version>
         </dependency>
     </dependencies>
 
