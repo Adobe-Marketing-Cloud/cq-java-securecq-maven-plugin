@@ -23,7 +23,7 @@
         <version>7</version>
     </parent>
 
-    <groupId>com.adobe.adobemarketingcloud.github</groupId>
+    <groupId>com.adobe.adobemarketingcloud.github.maven</groupId>
     <artifactId>securecq-maven-plugin</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
