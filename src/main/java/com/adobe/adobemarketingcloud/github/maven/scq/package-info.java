@@ -17,4 +17,5 @@
 /**
  * SecureCQ plugin for Apache Maven.
  */
-package com.adobe.granite.maven.scq;
+package com.adobe.adobemarketingcloud.github.maven.scq;
+

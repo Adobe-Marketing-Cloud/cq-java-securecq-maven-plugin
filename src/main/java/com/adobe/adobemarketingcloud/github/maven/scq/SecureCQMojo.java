@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.adobe.granite.maven.scq;
+package com.adobe.adobemarketingcloud.github.maven.scq;
 
 import static java.util.Arrays.asList;
 import static com.google.inject.Guice.createInjector;
@@ -32,7 +32,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.adobe.granite.maven.scq.di.SecureCQComponentsModule;
+import com.adobe.adobemarketingcloud.github.maven.scq.di.SecureCQComponentsModule;
 import com.cognifide.securecq.AbstractTest;
 import com.cognifide.securecq.Configuration;
 import com.cognifide.securecq.TestResult;

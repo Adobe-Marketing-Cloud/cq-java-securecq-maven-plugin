@@ -17,4 +17,4 @@
 /**
  * SecureCQ tests wiring.
  */
-package com.adobe.granite.maven.scq.di;
+package com.adobe.adobemarketingcloud.github.maven.scq.di;

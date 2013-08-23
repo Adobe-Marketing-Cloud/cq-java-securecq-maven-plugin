@@ -23,7 +23,7 @@
         <version>7</version>
     </parent>
 
-    <groupId>com.adobe.granite.maven</groupId>
+    <groupId>com.adobe.adobemarketingcloud.github</groupId>
     <artifactId>securecq-maven-plugin</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>

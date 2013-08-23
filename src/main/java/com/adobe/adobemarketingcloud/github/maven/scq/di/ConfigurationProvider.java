@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.adobe.granite.maven.scq.di;
+package com.adobe.adobemarketingcloud.github.maven.scq.di;
 
 import com.cognifide.securecq.Configuration;
 import com.cognifide.securecq.cli.XmlConfigurationReader;
