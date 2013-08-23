@@ -52,7 +52,7 @@ and <tt>redundant-selectors</tt> by default.<br></td>
 
  * Perform the tests
  
-    <pre>mvn com.adobe.granite.maven:securecq-maven-plugin:0.0.1:securecq [-Dscq.url.author=http://${host}:${port} -Dscq.url.publish=http://${host}:${port} -Dscq.url.dispatcher=http://${host}:${port}]</pre>
+    <pre>mvn com.adobe.adobemarketingcloud.github.maven:securecq-maven-plugin:0.0.1:securecq [-Dscq.url.author=http://${host}:${port} -Dscq.url.publish=http://${host}:${port} -Dscq.url.dispatcher=http://${host}:${port}]</pre>
 
    It will produce an output like the following one:
 
@@ -146,5 +146,5 @@ and <tt>redundant-selectors</tt> by default.<br></td>
 [INFO] Finished at: Mon Jun 24 15:47:51 CEST 2013
 [INFO] Final Memory: 9M/2031M
 [INFO] ------------------------------------------------------------------------
-[ERROR] Failed to execute goal com.adobe.granite.maven:securecq-maven-plugin:0.0.1-SNAPSHOT:securecq (default-cli) on project securecq-maven-plugin: SequreCQ detected secutity vulnerabilities in your instances, see the log for details.
+[ERROR] Failed to execute goal com.adobe.adobemarketingcloud.github.maven:securecq-maven-plugin:0.0.1-SNAPSHOT:securecq (default-cli) on project securecq-maven-plugin: SequreCQ detected secutity vulnerabilities in your instances, see the log for details.
 </pre>
